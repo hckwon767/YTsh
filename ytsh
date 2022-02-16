@@ -1,6 +1,8 @@
 #!/bin/bash
 
+# Change to video player of choice
 vplay="mpv"
+# Change to Invidious instance of choice or YouTube
 instance="https://vid.puffyan.us/watch?v="
 vid=$1
 title=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid | jq | grep "title" | cut -c 12-)
