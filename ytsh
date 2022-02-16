@@ -1,0 +1,21 @@
+#!/bin/bash
+
+vplay="mpv"
+instance="https://vid.puffyan.us/watch?v="
+vid=$1
+title=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid | jq | grep "title" | cut -c 12-)
+id=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid| jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
+tfile=~/.cache/yttitles
+idfile=~/.cache/ytids
+
+rm $tfile &> /dev/null
+rm $idfile &> /dev/null
+echo "$id" >> $idfile
+echo "$title" >> $tfile
+
+choice=$(echo "$title" | fzf)
+if [ -z $choice ]; then
+	exit
+fi
+line=$(grep -n "$choice" $tfile | awk '{print $1}' | sed 's/[:]//g')
+$vplay "$instance$(sed -n "${line}p" $idfile)"
