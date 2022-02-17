@@ -5,8 +5,8 @@ vplay="mpv"
 # change to youtube or invidious instance of choice
 instance="https://youtube.com/watch?v="
 vid=$(echo $* | sed 's/ /+/g')
-if [ -z $vid ]; then
-	exit
+if [ -z $vid ]; then 
+	exit 
 fi
 title=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid | jq | grep "title" | cut -c 12-)
 id=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid | jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
@@ -17,7 +17,9 @@ rm $tfile &> /dev/null
 rm $idfile &> /dev/null
 echo "$id" >> $idfile
 echo "$title" >> $tfile
-
 choice=$(echo "$title" | fzf --layout=reverse)
+if [ -z $choice ]; then 
+	exit 
+fi
 line=$(grep -n "$choice" $tfile | awk '{print $1}' | sed 's/[:]//g')
 $vplay "$instance$(sed -n "${line}p" $idfile)"
