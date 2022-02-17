@@ -15,7 +15,7 @@ rm $idfile &> /dev/null
 echo "$id" >> $idfile
 echo "$title" >> $tfile
 
-choice=$(echo "$title" | fzf)
+choice=$(echo "$title" | fzf --layout=reverse)
 if [ -z $choice ]; then
 	exit
 fi
