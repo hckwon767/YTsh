@@ -9,16 +9,21 @@ if [ -z $vid ]; then
 	exit 
 fi
 api=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid)
+author=$(echo "$api" | jq | grep -w "author" | sed 's/[":,]//g' | cut -c 12-)
 title=$(echo "$api" | jq | grep "title" | cut -c 12-)
 id=$(echo "$api" | jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
 tfile=~/.cache/yttitles
-idfile=~/.cache/ytids
+idfile=~/.cache/ytidis
+afile=~/.cache/ytauthor
 
 rm $tfile &> /dev/null
 rm $idfile &> /dev/null
+rm $final &> /dev/null
 echo "$id" >> $idfile
 echo "$title" >> $tfile
-choice=$(echo "$title" | fzf --layout=reverse)
+echo "$author" >> $afile && echo done!!
+pr -tmJ $afile  $tfile > ~/.cache/ytsh
+choice=$(cat ~/.cache/ytsh | fzf --layout=reverse)
 if [ -z $choice ]; then 
 	exit 
 fi
