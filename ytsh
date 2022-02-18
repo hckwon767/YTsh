@@ -5,15 +5,10 @@ vplay="mpv"
 # change to youtube or invidious instance of choice
 instance="https://youtube.com/watch?v="
 vid=$(echo $* | sed 's/ /+/g')
-if [ -z $vid ]; then 
-	exit 
-fi
+if [ -z  $vid ]; then exit; fi
 api=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid)
-<<<<<<< HEAD
 #channel=$(echo "$api" | jq | grep -w "author" | cut -c 15- | sed 's/[":,]//g')
-=======
 author=$(echo "$api" | jq | grep -w "author" | sed 's/[":,]//g' | cut -c 12-)
->>>>>>> devel
 title=$(echo "$api" | jq | grep "title" | cut -c 12-)
 id=$(echo "$api" | jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
 tfile=~/.cache/yttitles
@@ -28,11 +23,7 @@ echo "$title" >> $tfile
 echo "$author" >> $afile
 pr -tmJ $afile  $tfile > ~/.cache/ytsh
 choice=$(cat ~/.cache/ytsh | fzf --layout=reverse)
-if [ -z $choice ]; then 
-	exit 
-fi
+if [ -z  $choice ]; then exit; fi
 choice=$(echo "$choice" | sed 's/.*://')
 line=$(grep -n "$choice" $tfile | awk '{print $1}' | sed 's/[:]//g')
-echo $line
-sleep 4
 $vplay "$instance$(sed -n "${line}p" $idfile)"
