@@ -8,8 +8,9 @@ vid=$(echo $* | sed 's/ /+/g')
 if [ -z $vid ]; then 
 	exit 
 fi
-title=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid | jq | grep "title" | cut -c 12-)
-id=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid | jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
+api=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid)
+title=$(echo "$api" | jq | grep "title" | cut -c 12-)
+id=$(echo "$api" | jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
 tfile=~/.cache/yttitles
 idfile=~/.cache/ytids
 
