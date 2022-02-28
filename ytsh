@@ -4,10 +4,13 @@
 vplay="mpv"
 # change to youtube or invidious instance of choice
 instance="https://youtube.com/watch?v="
+# set to dmenu or fzf
+menu="fzf"
+
 vid=$(echo $* | sed 's/ /+/g')
 if [ -z  "$vid" ]; then exit; fi
+
 api=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid)
-#channel=$(echo "$api" | jq | grep -w "author" | cut -c 15- | sed 's/[":,]//g')
 author=$(echo "$api" | jq | grep -w "author" | sed 's/[":,]//g' | cut -c 12-)
 title=$(echo "$api" | jq | grep "title" | cut -c 12-)
 id=$(echo "$api" | jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
@@ -22,7 +25,13 @@ echo "$id" >> $idfile
 echo "$title" >> $tfile
 echo "$author" >> $afile
 pr -tmJ $afile  $tfile > ~/.cache/ytsh
-choice=$(cat ~/.cache/ytsh | fzf --layout=reverse)
+
+if [ $menu == "fzf"  ]; then
+	choice=$(cat ~/.cache/ytsh | fzf --layout=reverse)
+else
+	choice=$(cat ~/.cache/ytsh | dmenu -l 12)
+fi
+
 if [ -z  "$choice" ]; then exit; fi
 choice=$(echo "$choice" | sed 's/.*://')
 line=$(grep -n "$choice" $tfile | awk '{print $1}' | sed 's/[:]//g')
