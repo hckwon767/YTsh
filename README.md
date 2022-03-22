@@ -5,8 +5,10 @@ Cosoom YouTube content with bash
 #### It's a small bash script to search for youtube videos. It takes advantage of the invidious API
 
 ## Usage
-### ytsh [search term]
+### ytsh [search]
 
 ## Dependencies
-### fzf
+### fzf or dmenu
 ### jq
+### mpv
+### curl
