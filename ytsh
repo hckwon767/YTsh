@@ -1,16 +1,19 @@
-#!/bin/bash
+#!/bin/sh
 
 # change to video player of choice
 vplay="mpv"
+
 # change to youtube or invidious instance of choice
 instance="https://youtube.com/watch?v="
+
 # set to dmenu or fzf
 menu="fzf"
 
-vid=$(echo $* | sed 's/ /+/g')
-if [ -z  "$vid" ]; then exit; fi
+vid=$(echo "$*" | sed 's/ /+/g')
 
-api=$(curl -s https://vid.puffyan.us/api/v1/search/?q=$vid)
+[ -z "$vid" ] && exit
+
+api=$(curl -s https://vid.puffyan.us/api/v1/search/?q="$vid")
 author=$(echo "$api" | jq | grep -w "author" | sed 's/[":,]//g' | cut -c 12-)
 title=$(echo "$api" | jq | grep "title" | cut -c 12-)
 id=$(echo "$api" | jq | grep "videoId" | sed 's/[,:"]//g' | cut -c 13-)
@@ -18,21 +21,23 @@ tfile=~/.cache/yttitles
 idfile=~/.cache/ytidis
 afile=~/.cache/ytauthor
 
-rm $tfile &> /dev/null
-rm $idfile &> /dev/null
-rm $afile &> /dev/null
+rm "$tfile"
+rm "$idfile"
+rm "$afile"
 echo "$id" >> $idfile
 echo "$title" >> $tfile
 echo "$author" >> $afile
-pr -tmJ $afile  $tfile > ~/.cache/ytsh
 
-if [ $menu == "fzf"  ]; then
-	choice=$(cat ~/.cache/ytsh | fzf --layout=reverse)
+paste $afile  $tfile > ~/.cache/ytsh
+
+if [ $menu = "fzf"  ]; then
+	choice=$(fzf --layout=reverse < ~/.cache/ytsh)
 else
-	choice=$(cat ~/.cache/ytsh | dmenu -l 12)
+	choice=$(dmenu -l 12 < ~/.cache/ytsh)
 fi
 
-if [ -z  "$choice" ]; then exit; fi
+[ -z "$choice" ] && exit
+
 choice=$(echo "$choice" | sed 's/.*://')
 line=$(grep -n "$choice" $tfile | awk '{print $1}' | sed 's/[:]//g')
 $vplay "$instance$(sed -n "${line}p" $idfile)"
